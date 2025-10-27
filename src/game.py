@@ -40,7 +40,6 @@ class Game:
             if not self.active:
                 if self.macro.running:
                     self.macro.stop()
-                    self.macro.running = False
 
                 sleep(0.05)
                 continue
@@ -48,7 +47,6 @@ class Game:
             # When active:
             if not self.macro.running:
                 self.macro.start()
-                self.macro.running = True
 
             sleep(0.05)
 
@@ -68,12 +66,13 @@ class Game:
         if self.active != value:
             self.active = value
             if self.active:
-                self.macro.start()
-                self.macro.running = True
+                print("Starting bot systems...")
                 self.detection.start()
+                # Give detection a moment to initialize
+                sleep(0.5)
+                self.macro.start()
             else:
                 self.macro.stop()
-                # self.detection.stop()
 
             print(f"Bot {'Activated' if value else 'Paused'}")
 
