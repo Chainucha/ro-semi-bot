@@ -5,6 +5,7 @@ from time import sleep, time
 from pygame import mixer
 import os
 from src.detection import Detection
+import win32gui
 
 
 class Game:
@@ -37,16 +38,15 @@ class Game:
         while self.running:
             self.input.keyboard.listening_key()
             self.check_safety_condition()
-            if not self.active:
-                if self.macro.running:
-                    self.macro.stop()
 
+            if not self.active:
                 sleep(0.05)
                 continue
 
-            # When active:
-            if not self.macro.running:
-                self.macro.start()
+            # When active, ensure macro is running
+            if not self.macro.running and self.active:
+                print("Restarting macro in game loop...")
+                self.macro.start(from_user=True)
 
             sleep(0.05)
 
@@ -70,9 +70,11 @@ class Game:
                 self.detection.start()
                 # Give detection a moment to initialize
                 sleep(0.5)
-                self.macro.start()
+                self.macro.start(from_user=True)  # Force start with from_user=True
             else:
+                print("Stopping bot systems...")
                 self.macro.stop()
+                self.detection.stop()
 
             print(f"Bot {'Activated' if value else 'Paused'}")
 
@@ -81,28 +83,29 @@ class Game:
             if not self.alert_triggered:
                 print("⚠ Detection Triggered! Pausing Bot.")
                 self.alert_triggered = True
+                self.active = False  # Set active to false before stopping systems
 
-                #  Stop macro and bot activity
-                self.set_active(False)
+                # Stop macro and bot activity
+                self.macro.stop()
+                self.detection.stop()
 
-                #  Bring game window to foreground
+                # Bring game window to foreground
                 self.window.set_to_foreground(self.window_index)
 
-                #  Play sound if exists
+                # Play sound if exists
                 if os.path.exists(self.sound_path):
                     mixer.init()
                     mixer.music.load(self.sound_path)
                     mixer.music.play()
-        elif not self.is_detected and self.alert_triggered:
-            print("✅ Detection cleared, resuming system...")
-            sleep(10)
-            self.alert_triggered = False
-            self.set_active(True)
 
-    def toggle_bot(self, active=None):
-        if active is None:
-            self.active = not self.active
-        elif active:
-            self.active = True
-        else:
-            self.active = False
+        elif not self.is_detected and self.alert_triggered:
+            print("✅ Detection cleared, waiting 10s before resume...")
+            sleep(10)
+            print("✅ Detection still clear, resuming bot...")
+            self.alert_triggered = False
+            self.set_active(True)  # This will restart detection and macro
+
+    def deactivate_if_foreground(self):
+        focus_window = win32gui.GetForegroundWindow()
+        if (focus_window is not None) and (focus_window == self.window.handle):
+            self.set_active(not self.active)

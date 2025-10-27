@@ -35,11 +35,9 @@ class Keyboard:
         if self.pressed_key(self.VKEYS.END):
             self.game.running = False
         if self.pressed_key(self.VKEYS.PGDOWN):
-            self.game.macro.toggle()
             self.game.set_active(not self.game.active)
         if self.pressed_key(self.VKEYS.HOME):
-            self.game.toggle_bot()
-            self.game.set_active(not self.game.active)
+            self.game.deactivate_if_foreground()
         if self.pressed_key(self.VKEYS.PGUP):
             self.game.macro.start()
             self.game.set_active(True)
