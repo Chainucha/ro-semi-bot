@@ -15,10 +15,11 @@ class Detection:
         self.capture = WindowCapture(game)
         self.thread = None
         self.active = False
-        self.threshold = 0.85
+        self.threshold = 0.80
         self.latest_value = None
         self.needle_img = cv.imread(
-            "C:/project-code/ro-bot/my_ro_bot/src/mat/needle.jpg", cv.IMREAD_UNCHANGED
+            "C:/project-code/ro-bot/my_ro_bot/src/mat/needle.jpg",
+            cv.IMREAD_UNCHANGED,
         )
         # Do not auto-start detection here; start() will be called when the bot is activated
         # This avoids detection running before the bot is active and prevents unnecessary threads
