@@ -87,7 +87,6 @@ class Game:
 
                 # Stop macro and bot activity
                 self.macro.stop()
-                self.detection.stop()
 
                 # Bring game window to foreground
                 self.window.set_to_foreground(self.window_index)

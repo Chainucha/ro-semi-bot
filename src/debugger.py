@@ -76,13 +76,20 @@ class Debugger:
 
     def _create_bot_info_box(self, window_index, bot, width=30):
         """Create a compact info box for a single bot"""
+
+        def pad_line(content: str) -> str:
+            # Ensure exact inner width and wrap with box vertical borders
+            return f"│{content.ljust(width)}│"
+
         if not bot.game:
+            top = f"┌{'─' * width}┐"
+            bottom = f"└{'─' * width}┘"
             return [
-                f"┌{'─' * width}┐",
-                f"│ Bot {window_index:<{width-6}}🔴│",
-                f"│{' ' * width}│",
-                f"│ Game not initialized{' ' * (width - 19)}│",
-                f"└{'─' * width}┘",
+                top,
+                pad_line(f"Bot {window_index} 🔴"),
+                pad_line(""),
+                pad_line("Game not initialized"),
+                bottom,
             ]
 
         game = bot.game
@@ -90,16 +97,32 @@ class Debugger:
         macro_info = self._get_macro_info(game.macro) if game.macro else None
 
         status = "🟢" if bot.running else "🔴"
-        detect = "⚠️ " if game.is_detected else "✅ "
+        detect_val = (
+            f"{game.detection.latest_value*100:.2f}"
+            if game.detection and game.detection.latest_value is not None
+            else "N/A"
+        )
+        detect = "⚠️" if game.is_detected else "✅"
         macro = "⚡" if macro_info and macro_info["active"] else "⭕"
 
+        top = f"┌{'─' * width}┐"
+        bottom = f"└{'─' * width}┘"
+
+        # Build content lines and pad to exact width
+        bot_line = f"Bot {window_index} {status}"
+        wnd_line = f"WND: {str(window_info.get('handle', ''))}"
+        latest_line = f"Latest Value: {detect_val}"
+        detect_line = f"{detect} {'DETECTED' if game.is_detected else 'Clear'}"
+        macro_line = f"{macro} {'Active' if game.active else 'Inactive'}"
+
         lines = [
-            f"┌{'─' * width}┐",
-            f"│ Bot {window_index:<{width-6}}{status}│",
-            f"│ WND: {str(window_info['handle']):<{width-7}}│",
-            f"│ {detect}{'DETECTED' if game.is_detected else 'Clear':<{width-4}}│",
-            f"│ {macro} {'Active' if game.active else 'Inactive':<{width-4}}│",
-            f"└{'─' * width}┘",
+            top,
+            pad_line(bot_line),
+            pad_line(wnd_line),
+            pad_line(latest_line),
+            pad_line(detect_line),
+            pad_line(macro_line),
+            bottom,
         ]
         return lines
 
@@ -150,4 +173,5 @@ class Debugger:
         # Footer with controls
         print("╔════════════════════════ Controls ════════════════════════╗")
         print("║ F5: Toggle Debug │ Ctrl+C: Exit │ PgDn: Toggle Bot/Macro ║")
-        print("╚═══════════════════════════════════════════════════════════╝")
+        print("║ Home: Toggle On/Off Each Window                          ║")
+        print("╚══════════════════════════════════════════════════════════╝")
