@@ -1,11 +1,11 @@
 import cv2 as cv
-import numpy
-from time import time
 from tools.window_capture import WindowCapture
 import threading
 from time import sleep
-import numpy as np
-from typing import cast
+import os
+import pathlib
+
+needle_path = os.fspath(pathlib.Path(__file__).parent / "mat" / "needle.png")
 
 
 # initialize the WindowCapture class
@@ -15,10 +15,10 @@ class Detection:
         self.capture = WindowCapture(game)
         self.thread = None
         self.active = False
-        self.threshold = 0.80
+        self.threshold = 0.75
         self.latest_value = None
         self.needle_img = cv.imread(
-            "C:/project-code/ro-bot/my_ro_bot/src/mat/needle.jpg",
+            needle_path,
             cv.IMREAD_UNCHANGED,
         )
         # Do not auto-start detection here; start() will be called when the bot is activated
