@@ -1,10 +1,11 @@
 import cv2 as cv
-from time import time
 from tools.window_capture import WindowCapture
 import threading
 from time import sleep
-import numpy as np
-from typing import cast
+import os
+import pathlib
+
+needle_path = os.fspath(pathlib.Path(__file__).parent / "mat" / "needle.png")
 
 
 # initialize the WindowCapture class
@@ -14,9 +15,11 @@ class Detection:
         self.capture = WindowCapture(game)
         self.thread = None
         self.active = False
-        self.threshold = 0.85
+        self.threshold = 0.75
+        self.latest_value = None
         self.needle_img = cv.imread(
-            "C:/project-code/ro-bot/my_ro_bot/src/mat/needle.jpg", cv.IMREAD_UNCHANGED
+            needle_path,
+            cv.IMREAD_UNCHANGED,
         )
         # Do not auto-start detection here; start() will be called when the bot is activated
         # This avoids detection running before the bot is active and prevents unnecessary threads
@@ -53,9 +56,9 @@ class Detection:
             except Exception:
                 needle = self.needle_img
             result = cv.matchTemplate(screenshot, needle, cv.TM_CCOEFF_NORMED)
-            _, max_val, _, max_loc = cv.minMaxLoc(result)
+            _, self.latest_value, _, max_loc = cv.minMaxLoc(result)
 
-            detected = max_val >= self.threshold
+            detected = self.latest_value >= self.threshold
 
             if detected != getattr(self.game, "is_detected", False):
                 self.game.is_detected = detected
@@ -64,3 +67,25 @@ class Detection:
             # Save for debugging view (main thread)
 
             sleep(1)
+
+    def find_npc_location(self, max_loc, needle_img=None):
+        if needle_img is not None:
+            top_left = max_loc
+            needle_center_x = needle_img.shape[1] / 2
+            needle_center_y = needle_img.shape[0] / 2
+            center = (top_left[0] + needle_center_x, top_left[1] + needle_center_y)
+            return center
+
+        return
+
+    def capcha_resolver(self, max_loc):
+        npc_loc = self.find_npc_location(max_loc, self.needle_img)
+        self.game.input.mouse.send_click(npc_loc)
+        sleep(2)
+        # try to locate capcha window
+
+        # resolve it with pytessaract
+
+        # check condition again
+
+        # After 2 fail alarm

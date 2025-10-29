@@ -1,12 +1,14 @@
 import win32con
 import win32gui
 import win32api
-
+import os
+from dotenv import load_dotenv
 from threading import Thread
 from ctypes import WINFUNCTYPE, c_int, Structure, cast, POINTER, windll
 from ctypes.wintypes import LPARAM, WPARAM, DWORD, PULONG, LONG
 
-WINDOW_TITLE = "Cupcake RO | Gepard Shield 3.0 (^-_-^)"
+load_dotenv()
+WINDOW_TITLE = os.getenv("WINDOW_TITLE")
 
 
 def genStruct(name="Structure", **kwargs):
@@ -30,7 +32,7 @@ class MouseBlocker:
             "Hook",
             pt=genStruct("Point", x=LONG, y=LONG),
             mouseData=DWORD,
-            flags=DWORD,
+            flags=DWORD,  # Might be useful to bypass detection
             time=DWORD,
             dwExtraInfo=PULONG,
         )

@@ -42,7 +42,9 @@ class BotManager:
     def __init__(self):
         self.bots = {}  # window_index → Bot instance
         from src.debugger import Debugger
+        from tools.notification import Notifier
 
+        self.notifier = Notifier()
         self.debugger = Debugger(self)
 
     def start_bot(self, window_index):

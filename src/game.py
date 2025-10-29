@@ -6,6 +6,10 @@ from pygame import mixer
 import os
 from src.detection import Detection
 import win32gui
+import os
+import pathlib
+
+sound_path = os.fspath(pathlib.Path(__file__).parent / "cops.mp3")
 
 
 class Game:
@@ -21,7 +25,7 @@ class Game:
         self.input = Input(self)
         self.macro = Macro(self)
         self.alert_triggered = False
-        self.sound_path = "C:/project-code/ro-bot/my_ro_bot/src/cops.mp3"
+        self.sound_path = sound_path
 
     def __str__(self):
         return (
@@ -87,7 +91,6 @@ class Game:
 
                 # Stop macro and bot activity
                 self.macro.stop()
-                self.detection.stop()
 
                 # Bring game window to foreground
                 self.window.set_to_foreground(self.window_index)
@@ -97,6 +100,8 @@ class Game:
                     mixer.init()
                     mixer.music.load(self.sound_path)
                     mixer.music.play()
+
+                    self.manager.notifier.send("Detection Triggered! Pausing Bot.")
 
         elif not self.is_detected and self.alert_triggered:
             print("✅ Detection cleared, waiting 10s before resume...")
