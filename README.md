@@ -1,6 +1,6 @@
 # ro-semi-bot
 
-Semi-automatic bot for **Cupcake RO** (Ragnarok Online). Drives one or more game
+Semi-automatic bot for **Ragnarok Online**. Drives one or more game
 windows with a skill macro, watches the screen for a target pattern via OpenCV
 template matching, and pauses with a sound + Telegram alert when something is
 detected (e.g. a GM check / captcha). A live terminal dashboard shows per-window
@@ -12,7 +12,7 @@ status.
 
 ## Features
 
-- **Multi-window** — auto-detects every window titled `Cupcake RO ...` and runs an
+- **Multi-window** — auto-detects every matching game window by title and runs an
   independent bot thread per window.
 - **Skill macro** — repeating F1 → click → F2 → Enter loop with randomized
   click offset and timing to look less robotic (`src/macro.py`).
@@ -57,8 +57,8 @@ pip install opencv-python numpy pygame pywin32 ahk python-telegram-bot python-do
 
    If omitted, the notifier silently disables itself.
 
-3. Make sure the game window title matches `WINDOW_TITLE` in `main.py` /
-   `tools/window_handler.py`. Edit it if your client title differs.
+3. Set `WINDOW_TITLE` in `main.py` / `tools/window_handler.py` to match your
+   game client's window title.
 
 4. Replace `src/mat/needle.png` with the image you want detected (default
    threshold `0.75` in `src/detection.py`).
